@@ -1,98 +1,86 @@
-/**
- * BanglaTune Project (C) 2026
- * Modern Floating Bottom Player - By BanglaTune
- * Spotify Style Rounded + Blur + Shadow
- */
-
 package com.metrolist.music.ui.player
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import com.metrolist.music.ui.player.PlayerTopSwitch
 
+// BanglaTune - YouTube Music Style Audio/Video Toggle
+// তোমার সবুজ দাগ করা জায়গায় বসবে
 @Composable
-fun MiniPlayer(
-    mediaMetadata: androidx.media3.common.MediaMetadata?,
-    isPlaying: Boolean,
-    onPlayPause: () -> Unit,
-    onClick: () -> Unit
+fun PlayerTopSwitch(
+    isVideoMode: Boolean,
+    onToggle: (Boolean) -> Unit
 ) {
-    Card(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 12.dp, bottom = 12.dp, top = 4.dp)
-            .shadow(16.dp, RoundedCornerShape(28.dp))
-            .clip(RoundedCornerShape(28.dp))
-            .clickable { onClick() },
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        )
+            .padding(top = 12.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color(0xFF2A2A2A))
+                .padding(4.dp)
         ) {
-            AsyncImage(
-                model = mediaMetadata?.artworkUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+            // Audio Button
+            Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
-            Spacer(modifier = Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(if (!isVideoMode) Color.White else Color.Transparent)
+                    .clickable { onToggle(false) }
+                    .padding(horizontal = 22.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = mediaMetadata?.title?.toString() ?: "Not Playing",
-                    style = MaterialTheme.typography.titleSmall,
+                    "Audio",
+                    color = if (!isVideoMode) Color.Black else Color.White,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = mediaMetadata?.artist?.toString() ?: "BanglaTune",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    fontSize = 14.sp
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            FilledTonalIconButton(
-                onClick = onPlayPause,
-                modifier = Modifier.size(44.dp)
+            // Video Button
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(if (isVideoMode) Color.White else Color.Transparent)
+                    .clickable { onToggle(true) }
+                    .padding(horizontal = 22.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    "Video",
+                    color = if (isVideoMode) Color.Black else Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
                 )
             }
         }
-        LinearProgressIndicator(
-            progress = { 0.3f },
-            modifier = Modifier.fillMaxWidth().height(2.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
-        )
     }
 }
+
+// Main Player Wrapper - Lyra Style
+@Composable
+fun Player(
+    // তোমার আগের Player এর Parameter গুলো এখানে থাকবে
+) {
+    var isVideoMode by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+    ) {
+        // ✅ YouTube Music Style
